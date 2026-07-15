@@ -17,15 +17,16 @@ export const routes: Routes = [
   //   path: 'reset-password',
   //   loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   // },
-  // {
-  //   path: 'admin',
-  //   canActivate: [authGuard],
-  //   loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
-  //   children: [
-  //     { path: '', redirectTo: 'home', pathMatch: 'full' },
-  //     { path: 'home', loadComponent: () => import('./pages/gestion-home/gestion-home.component').then(m => m.GestionHomeComponent) },
-  //   ],
-  // },
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', loadComponent: () => import('./pages/gestion-home/gestion-home.component').then(m => m.GestionHomeComponent) },
+      { path: 'productos', loadChildren: () => import('./pages/productos/productos.routes').then(m => m.PRODUCTOS_ROUTES) },
+    ],
+  },
   // {
   //   path: 'usuarios',
   //   canActivate: [roleGuard(['ADMINISTRADOR'])],

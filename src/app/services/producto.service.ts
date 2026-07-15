@@ -1,38 +1,36 @@
 import { Injectable } from '@angular/core';
-import { Producto } from '../model/producto';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { GenericService } from './generic.service';
-import { TokenService } from './token.service';
+import { Producto } from '../model/producto';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class BancoService extends GenericService<Producto>{
-  private productoChange: Subject<Producto[]> = new Subject<Producto[]>;
-  private messageChange: Subject<string> = new Subject<string>;
+@Injectable({ providedIn: 'root' })
+export class ProductoService {
+  private url = `${environment.HOST}/api/producto`;
 
-  constructor(
-    protected override http: HttpClient,
-    private tokenService: TokenService
-  ) {
-    super(http, `${environment.HOST}/api/producto`);
+  constructor(private http: HttpClient) {}
+
+  findAll(): Observable<Producto[]> {
+    return this.http.get<Producto[]>(this.url);
   }
 
-  setBancoChange(data: Producto[]) {
-    this.productoChange.next(data);
+  findById(id: number): Observable<Producto> {
+    return this.http.get<Producto>(`${this.url}/${id}`);
   }
 
-  getBancoChange(){
-    return this.productoChange.asObservable();
+  save(producto: Producto): Observable<Producto> {
+    return this.http.post<Producto>(this.url, producto);
   }
 
-  setMessageChange(data: string){
-    this.messageChange.next(data);
+  update(id: number, producto: Producto): Observable<Producto> {
+    return this.http.put<Producto>(`${this.url}/${id}`, producto);
   }
 
-  getMessageChange(){
-    return this.messageChange.asObservable();
+  desactivar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  reactivar(id: number): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}/reactivar`, {});
   }
 }

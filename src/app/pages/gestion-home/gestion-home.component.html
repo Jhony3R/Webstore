@@ -1,0 +1,131 @@
+<div style="font-family: 'Inter', sans-serif;">
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-8">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Panel principal</p>
+      <h1 class="text-2xl text-[#1C2333] mt-1" style="font-family: 'Fraunces', serif; font-weight: 600;">
+        Hola, {{ username() }}
+      </h1>
+    </div>
+    <p class="text-sm text-[#8B8778]">{{ fechaHoy | date: "EEEE d 'de' MMMM, yyyy" : '' : 'es-PE' }}</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-medium text-[#8B8778] uppercase tracking-wide">Ventas de hoy</p>
+        <div class="w-8 h-8 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2"/>
+            <circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-2xl font-semibold text-[#1C2333]">S/ {{ ventasHoy | number: '1.2-2' }}</p>
+      <p class="text-xs text-[#8B8778] mt-1">{{ cantidadVentasHoy }} transacciones</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-medium text-[#8B8778] uppercase tracking-wide">Ticket promedio</p>
+        <div class="w-8 h-8 rounded-md bg-[#C9A15C]/15 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#a17d34]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005 17h12"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-2xl font-semibold text-[#1C2333]">S/ {{ (ventasHoy / cantidadVentasHoy) | number: '1.2-2' }}</p>
+      <p class="text-xs text-[#8B8778] mt-1">por venta</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-medium text-[#8B8778] uppercase tracking-wide">Estado de caja</p>
+        <div class="w-8 h-8 rounded-md flex items-center justify-center" [class.bg-emerald-50]="cajaAbierta" [class.bg-red-50]="!cajaAbierta">
+          <svg class="h-4 w-4" [class.text-emerald-600]="cajaAbierta" [class.text-red-500]="!cajaAbierta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="6" width="18" height="12" rx="2"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-2xl font-semibold text-[#1C2333]">{{ cajaAbierta ? 'Abierta' : 'Cerrada' }}</p>
+      <p class="text-xs text-[#8B8778] mt-1">Saldo: S/ {{ saldoCaja | number: '1.2-2' }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-medium text-[#8B8778] uppercase tracking-wide">Stock bajo</p>
+        <div class="w-8 h-8 rounded-md bg-red-50 flex items-center justify-center">
+          <svg class="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-2xl font-semibold text-[#1C2333]">{{ productosStockBajo.length }}</p>
+      <p class="text-xs text-[#8B8778] mt-1">productos por reponer</p>
+    </div>
+  </div>
+
+  <!-- Contenido secundario -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+    <!-- Ventas recientes -->
+    <div class="xl:col-span-2 bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#E4DFD3] flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-[#1C2333]">Ventas recientes</h2>
+        <a routerLink="/admin/ventas" class="text-xs font-medium text-[#7C2D3B] hover:underline">Ver todas</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+              <th class="px-5 py-2.5 font-medium">Comprobante</th>
+              <th class="px-5 py-2.5 font-medium">Cliente</th>
+              <th class="px-5 py-2.5 font-medium">Pago</th>
+              <th class="px-5 py-2.5 font-medium text-right">Total</th>
+              <th class="px-5 py-2.5 font-medium text-right">Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let venta of ventasRecientes" class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+              <td class="px-5 py-3 font-medium text-[#1C2333]">{{ venta.comprobante }}</td>
+              <td class="px-5 py-3 text-[#3A362F]">{{ venta.cliente }}</td>
+              <td class="px-5 py-3">
+                <span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#7C2D3B]/10 text-[#7C2D3B]">
+                  {{ venta.metodoPago }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-right font-medium text-[#1C2333]">S/ {{ venta.total | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#8B8778]">{{ venta.hora }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Alertas de stock -->
+    <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#E4DFD3] flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-[#1C2333]">Alertas de stock</h2>
+        <a routerLink="/admin/productos" class="text-xs font-medium text-[#7C2D3B] hover:underline">Ver todo</a>
+      </div>
+      <ul class="divide-y divide-[#F0EDE3]">
+        <li *ngFor="let producto of productosStockBajo" class="px-5 py-3.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <p class="text-sm font-medium text-[#1C2333] truncate pr-2">{{ producto.nombre }}</p>
+            <span class="text-xs font-semibold text-red-500 shrink-0">{{ producto.stockActual }} / {{ producto.stockMinimo }}</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-[#F0EDE3] overflow-hidden">
+            <div
+              class="h-full bg-red-400 rounded-full"
+              [style.width.%]="(producto.stockActual / producto.stockMinimo) * 100"
+            ></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

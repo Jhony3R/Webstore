@@ -1,5 +1,5 @@
 export const environment = {
-  HOST: 'http://localhost:80',
+  HOST: 'http://localhost:8080',
   RETRY: 2,
   VERSION: '2.0.0',
   TOKEN_NAME: 'access_token',

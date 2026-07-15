@@ -1,5 +1,5 @@
 export class Producto {
-    idProducto:number;
+    idProducto?:number;
     codigo:string;
     descripcion:string;
     marca:string;
@@ -10,5 +10,5 @@ export class Producto {
     stockActual:number;
     stockMinimo:number;
     activo:boolean;
-    fechaCreacion:string;
+    fechaCreacion?:string;
 }

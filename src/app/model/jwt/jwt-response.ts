@@ -1,4 +1,4 @@
 export interface JwtResponse {
-  token: string;
+  access_token: string;
   rol: string; // "ADMINISTRADOR" | "VENDEDOR"
 }

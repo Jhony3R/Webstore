@@ -21,7 +21,7 @@ export class LoginService {
     const body: JwtRequest = { username, password };
     return this.http.post<JwtResponse>(this.url, body).pipe(
       tap((res) => {
-        sessionStorage.setItem(environment.TOKEN_NAME, res.token);
+        sessionStorage.setItem(environment.TOKEN_NAME, res.access_token);
         sessionStorage.setItem('rol', res.rol);
         sessionStorage.setItem('username', username);
       }),
