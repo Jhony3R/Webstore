@@ -34,4 +34,13 @@ export class TokenService {
     const rol = this.getRol();
     return rol === 'ADMINISTRADOR' || rol === 'ROLE_ADMIN';
   }
+
+  saveIdUsuario(id: number): void {
+    sessionStorage.setItem('idUsuario', id.toString());
+  }
+
+  getIdUsuario(): number | null {
+    const id = sessionStorage.getItem('idUsuario');
+    return id ? Number(id) : null;
+  }
 }

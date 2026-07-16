@@ -48,7 +48,7 @@ export class LoginComponent {
         this.isLoading = false;
         console.error('Error en login:', error);
 
-        const errorCode = error?.error?.error;
+        const errorCode = error?.error?.errorCode;
 
         if (errorCode === 'USER_DISABLED') {
           Swal.fire({

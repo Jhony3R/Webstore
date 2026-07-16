@@ -1,0 +1,127 @@
+<div style="font-family: 'Inter', sans-serif;">
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Inventario</p>
+      <h1 class="text-2xl text-[#1C2333] mt-1" style="font-family: 'Fraunces', serif; font-weight: 600;">
+        Ajustes de inventario
+      </h1>
+    </div>
+    <button (click)="nuevoAjuste()"
+      class="inline-flex items-center gap-2 rounded-md bg-[#1C2333] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#7C2D3B] transition">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Nuevo ajuste
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bg-white rounded-lg border border-[#E4DFD3] p-4 mb-5 flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-1">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#B3AC9C]" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7" />
+        <path stroke-linecap="round" d="M21 21l-4-4" />
+      </svg>
+      <input type="text" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+        placeholder="Buscar por producto, motivo o usuario..."
+        class="w-full rounded-md border border-[#E4DFD3] pl-9 pr-3 py-2 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+    </div>
+
+    <select [ngModel]="filtroTipo()" (ngModelChange)="filtroTipo.set($event)"
+      class="rounded-md border border-[#E4DFD3] px-3 py-2 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30">
+      <option value="TODOS">Todos los tipos</option>
+      <option *ngFor="let t of tipos" [value]="t">{{ etiquetaTipo(t) }}</option>
+    </select>
+  </div>
+
+  <!-- Tabla -->
+  <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+
+    <div *ngIf="cargando()" class="p-10 text-center text-sm text-[#8B8778]">
+      Cargando ajustes...
+    </div>
+
+    <div *ngIf="!cargando() && ajustesFiltrados().length === 0" class="p-10 text-center">
+      <p class="text-sm text-[#8B8778]">No se encontraron ajustes con esos filtros.</p>
+    </div>
+
+    <div *ngIf="!cargando() && ajustesFiltrados().length > 0" class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+            <th class="px-5 py-3 font-medium">Fecha</th>
+            <th class="px-5 py-3 font-medium">Producto</th>
+            <th class="px-5 py-3 font-medium text-center">Tipo</th>
+            <th class="px-5 py-3 font-medium text-center">Cantidad</th>
+            <th class="px-5 py-3 font-medium">Motivo</th>
+            <th class="px-5 py-3 font-medium text-center">Stock</th>
+            <th class="px-5 py-3 font-medium">Registrado por</th>
+            <th class="px-5 py-3 font-medium text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ajuste of ajustesFiltrados()"
+            class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+
+            <td class="px-5 py-3 text-[#6B6558] whitespace-nowrap">
+              {{ ajuste.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+            <td class="px-5 py-3">
+              <div class="text-[#1C2333] font-medium">{{ ajuste.producto.codigo }}</div>
+              <div class="text-[#8B8778] text-xs truncate max-w-[180px]">{{ ajuste.producto.descripcion }}</div>
+            </td>
+
+            <td class="px-5 py-3 text-center">
+              <span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                [ngClass]="{
+                  'bg-red-50 text-red-600': esNegativo(ajuste.tipoAjusteInventario),
+                  'bg-emerald-50 text-emerald-600': esPositivo(ajuste.tipoAjusteInventario),
+                  'bg-[#1C2333]/10 text-[#1C2333]': ajuste.tipoAjusteInventario === 'CORRECCION'
+                }">
+                {{ etiquetaTipo(ajuste.tipoAjusteInventario) }}
+              </span>
+            </td>
+
+            <td class="px-5 py-3 text-center font-medium"
+              [ngClass]="{
+                'text-red-600': esNegativo(ajuste.tipoAjusteInventario),
+                'text-emerald-600': esPositivo(ajuste.tipoAjusteInventario),
+                'text-[#1C2333]': ajuste.tipoAjusteInventario === 'CORRECCION'
+              }">
+              <ng-container [ngSwitch]="true">
+                <span *ngSwitchCase="esNegativo(ajuste.tipoAjusteInventario)">-{{ ajuste.cantidad }}</span>
+                <span *ngSwitchCase="esPositivo(ajuste.tipoAjusteInventario)">+{{ ajuste.cantidad }}</span>
+                <span *ngSwitchDefault>{{ ajuste.cantidad }}</span>
+              </ng-container>
+            </td>
+
+            <td class="px-5 py-3 text-[#3A362F] max-w-[220px] truncate" [title]="ajuste.motivo">
+              {{ ajuste.motivo }}
+            </td>
+
+            <td class="px-5 py-3 text-center text-[#6B6558] whitespace-nowrap">
+              {{ ajuste.stockAnterior }} → <span class="font-semibold text-[#1C2333]">{{ ajuste.stockNuevo }}</span>
+            </td>
+
+            <td class="px-5 py-3 text-[#6B6558]">{{ ajuste.usuario.username || '—' }}</td>
+
+            <td class="px-5 py-3 text-right">
+              <button (click)="eliminar(ajuste)" title="Eliminar ajuste (revierte el stock)"
+                class="p-1.5 rounded-md text-red-500 hover:bg-red-50 transition">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

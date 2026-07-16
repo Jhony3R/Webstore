@@ -29,13 +29,18 @@ export const routes: Routes = [
       { path: 'clientes', loadChildren: () => import('./pages/clientes/clientes.routes').then(m => m.CLIENTES_ROUTES) },
       { path: 'proveedores', loadChildren: () => import('./pages/proveedores/proveedores.routes').then(m => m.PROVEEDORES_ROUTES) },
       { path: 'ventas', loadChildren: () => import('./pages/ventas/ventas.routes').then(m => m.VENTAS_ROUTES) },
+      {
+        path: 'ajuste-inventario',
+        canActivate: [roleGuard(['ADMINISTRADOR'])],
+        loadChildren: () => import('./pages/ajuste-inventario/ajuste-inventario.routes').then(m => m.AJUSTE_INVENTARIO_ROUTES)
+      },
+      {
+        path: 'usuarios',
+        canActivate: [roleGuard(['ADMINISTRADOR'])],
+        loadChildren: () => import('./pages/usuarios/usuarios.routes').then(m => m.USUARIOS_ROUTES)
+      },
     ],
   },
-  // {
-  //   path: 'usuarios',
-  //   canActivate: [roleGuard(['ADMINISTRADOR'])],
-  //   loadComponent: () => import('./pages/usuarios/usuarios.component').then(m => m.UsuariosComponent),
-  // },
 
   { path: '**', redirectTo: 'login' },
 ];
