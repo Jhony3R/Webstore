@@ -1,5 +1,5 @@
 export class Categoria {
-    idCategoria:number;
+    idCategoria?:number;
     nombre:string;
     descripcion:string;
     activo:boolean;

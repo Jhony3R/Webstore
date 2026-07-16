@@ -1,0 +1,246 @@
+<div style="font-family: 'Inter', sans-serif;">
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Analítica</p>
+      <h1 class="text-2xl text-[#1C2333] mt-1" style="font-family: 'Fraunces', serif; font-weight: 600;">
+        Reportes
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button (click)="exportar('excel')" [disabled]="exportando()"
+        class="inline-flex items-center gap-2 rounded-md border border-[#E4DFD3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2333] hover:bg-[#FAF6EF] transition disabled:opacity-60">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
+        </svg>
+        Excel
+      </button>
+      <button (click)="exportar('pdf')" [disabled]="exportando()"
+        class="inline-flex items-center gap-2 rounded-md bg-[#1C2333] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#7C2D3B] transition disabled:opacity-60">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
+        </svg>
+        {{ exportando() ? 'Exportando...' : 'PDF' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex flex-wrap gap-2 mb-5">
+    <button (click)="cambiarTipoReporte('ventas')"
+      class="px-4 py-2 rounded-md text-sm font-semibold transition"
+      [ngClass]="tipoReporte() === 'ventas' ? 'bg-[#1C2333] text-white' : 'bg-white border border-[#E4DFD3] text-[#6B6558] hover:bg-[#FAF6EF]'">
+      Ventas diarias
+    </button>
+    <button (click)="cambiarTipoReporte('productos')"
+      class="px-4 py-2 rounded-md text-sm font-semibold transition"
+      [ngClass]="tipoReporte() === 'productos' ? 'bg-[#1C2333] text-white' : 'bg-white border border-[#E4DFD3] text-[#6B6558] hover:bg-[#FAF6EF]'">
+      Más vendidos
+    </button>
+    <button (click)="cambiarTipoReporte('ganancias')"
+      class="px-4 py-2 rounded-md text-sm font-semibold transition"
+      [ngClass]="tipoReporte() === 'ganancias' ? 'bg-[#1C2333] text-white' : 'bg-white border border-[#E4DFD3] text-[#6B6558] hover:bg-[#FAF6EF]'">
+      Ganancias netas
+    </button>
+    <button (click)="cambiarTipoReporte('inventario')"
+      class="px-4 py-2 rounded-md text-sm font-semibold transition"
+      [ngClass]="tipoReporte() === 'inventario' ? 'bg-[#1C2333] text-white' : 'bg-white border border-[#E4DFD3] text-[#6B6558] hover:bg-[#FAF6EF]'">
+      Estado de inventario
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bg-white rounded-lg border border-[#E4DFD3] p-4 mb-5 flex flex-col sm:flex-row sm:items-end gap-3"
+    *ngIf="tipoReporte() !== 'inventario'">
+    <div>
+      <label class="block text-xs font-medium text-[#6B6558] mb-1.5">Desde</label>
+      <input type="date" [ngModel]="fechaInicio()" (ngModelChange)="fechaInicio.set($event)"
+        class="rounded-md border border-[#E4DFD3] px-3 py-2 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-[#6B6558] mb-1.5">Hasta</label>
+      <input type="date" [ngModel]="fechaFin()" (ngModelChange)="fechaFin.set($event)"
+        class="rounded-md border border-[#E4DFD3] px-3 py-2 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+    </div>
+    <button (click)="generarReporte()"
+      class="rounded-md bg-[#1C2333] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#7C2D3B] transition">
+      Generar
+    </button>
+  </div>
+
+  <div *ngIf="cargando()" class="bg-white rounded-lg border border-[#E4DFD3] p-10 text-center text-sm text-[#8B8778]">
+    Generando reporte...
+  </div>
+
+  <!-- VENTAS DIARIAS -->
+  <ng-container *ngIf="!cargando() && tipoReporte() === 'ventas'">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">N° de ventas</p>
+        <p class="text-2xl font-semibold text-[#1C2333] mt-1">{{ totalesVentas().cantidad }}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">Total recaudado</p>
+        <p class="text-2xl font-semibold text-[#1C2333] mt-1">S/ {{ totalesVentas().total | number: '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+      <div *ngIf="ventas().length === 0" class="p-10 text-center">
+        <p class="text-sm text-[#8B8778]">No se encontraron datos para el periodo seleccionado.</p>
+      </div>
+      <div *ngIf="ventas().length > 0" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+              <th class="px-5 py-3 font-medium">Fecha</th>
+              <th class="px-5 py-3 font-medium text-right">N° Ventas</th>
+              <th class="px-5 py-3 font-medium text-right">Efectivo</th>
+              <th class="px-5 py-3 font-medium text-right">Yape</th>
+              <th class="px-5 py-3 font-medium text-right">Plin</th>
+              <th class="px-5 py-3 font-medium text-right">Tarjeta</th>
+              <th class="px-5 py-3 font-medium text-right">Transferencia</th>
+              <th class="px-5 py-3 font-medium text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of ventas()" class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+              <td class="px-5 py-3 font-medium text-[#1C2333]">{{ v.fecha }}</td>
+              <td class="px-5 py-3 text-right text-[#3A362F]">{{ v.cantidadVentas }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ v.totalEfectivo | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ v.totalYape | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ v.totalPlin | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ v.totalTarjeta | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ v.totalTransferencia | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right font-semibold text-[#1C2333]">S/ {{ v.totalGeneral | number: '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- PRODUCTOS MÁS VENDIDOS -->
+  <ng-container *ngIf="!cargando() && tipoReporte() === 'productos'">
+    <div class="bg-white rounded-lg border border-[#E4DFD3] p-6">
+      <div *ngIf="productos().length === 0" class="p-4 text-center">
+        <p class="text-sm text-[#8B8778]">No se encontraron datos para el periodo seleccionado.</p>
+      </div>
+
+      <div *ngFor="let p of productos()" class="mb-4 last:mb-0">
+        <div class="flex items-center justify-between text-sm mb-1">
+          <span class="font-medium text-[#1C2333]">{{ p.descripcion }} <span class="text-[#8B8778]">({{ p.codigo }})</span></span>
+          <span class="text-[#3A362F]">{{ p.cantidadVendida }} und. · S/ {{ p.totalIngresos | number: '1.2-2' }}</span>
+        </div>
+        <div class="w-full h-2.5 rounded-full bg-[#F0EDE3]">
+          <div class="h-2.5 rounded-full bg-[#7C2D3B]"
+            [style.width.%]="maxCantidadVendida() ? (p.cantidadVendida / maxCantidadVendida() * 100) : 0">
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- GANANCIAS NETAS -->
+  <ng-container *ngIf="!cargando() && tipoReporte() === 'ganancias'">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">Ventas</p>
+        <p class="text-2xl font-semibold text-[#1C2333] mt-1">S/ {{ totalesGanancias().ventas | number: '1.2-2' }}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">Compras</p>
+        <p class="text-2xl font-semibold text-[#1C2333] mt-1">S/ {{ totalesGanancias().compras | number: '1.2-2' }}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">Ganancia neta</p>
+        <p class="text-2xl font-semibold mt-1" [ngClass]="totalesGanancias().neto >= 0 ? 'text-emerald-600' : 'text-red-500'">
+          S/ {{ totalesGanancias().neto | number: '1.2-2' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+      <div *ngIf="ganancias().length === 0" class="p-10 text-center">
+        <p class="text-sm text-[#8B8778]">No se encontraron datos para el periodo seleccionado.</p>
+      </div>
+      <div *ngIf="ganancias().length > 0" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+              <th class="px-5 py-3 font-medium">Fecha</th>
+              <th class="px-5 py-3 font-medium text-right">Ventas</th>
+              <th class="px-5 py-3 font-medium text-right">Compras</th>
+              <th class="px-5 py-3 font-medium text-right">Ganancia neta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let g of ganancias()" class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+              <td class="px-5 py-3 font-medium text-[#1C2333]">{{ g.fecha }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ g.totalVentas | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right text-[#6B6558]">S/ {{ g.totalCompras | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right font-semibold"
+                [ngClass]="g.gananciaNeta >= 0 ? 'text-emerald-600' : 'text-red-500'">
+                S/ {{ g.gananciaNeta | number: '1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ESTADO DE INVENTARIO -->
+  <ng-container *ngIf="!cargando() && tipoReporte() === 'inventario'">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">Total de prendas</p>
+        <p class="text-2xl font-semibold text-[#1C2333] mt-1">{{ inventario().length }}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-[#E4DFD3] p-5">
+        <p class="text-xs text-[#8B8778] uppercase tracking-wide">En alerta de stock</p>
+        <p class="text-2xl font-semibold text-red-500 mt-1">{{ inventarioCritico().length }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+      <div *ngIf="inventario().length === 0" class="p-10 text-center">
+        <p class="text-sm text-[#8B8778]">No se encontraron productos en el inventario.</p>
+      </div>
+      <div *ngIf="inventario().length > 0" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+              <th class="px-5 py-3 font-medium">Código</th>
+              <th class="px-5 py-3 font-medium">Producto</th>
+              <th class="px-5 py-3 font-medium">Categoría</th>
+              <th class="px-5 py-3 font-medium text-right">P. Venta</th>
+              <th class="px-5 py-3 font-medium text-right">Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let i of inventario()" class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+              <td class="px-5 py-3 font-medium text-[#1C2333]">{{ i.codigo }}</td>
+              <td class="px-5 py-3 text-[#3A362F]">{{ i.descripcion }}</td>
+              <td class="px-5 py-3 text-[#6B6558]">{{ i.categoria || '—' }}</td>
+              <td class="px-5 py-3 text-right font-medium text-[#1C2333]">S/ {{ i.precioVenta | number: '1.2-2' }}</td>
+              <td class="px-5 py-3 text-right">
+                <span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                  [class.bg-red-50]="estadoStock(i) === 'critico'"
+                  [class.text-red-600]="estadoStock(i) === 'critico'"
+                  [class.bg-amber-50]="estadoStock(i) === 'bajo'"
+                  [class.text-amber-600]="estadoStock(i) === 'bajo'"
+                  [class.bg-emerald-50]="estadoStock(i) === 'normal'"
+                  [class.text-emerald-600]="estadoStock(i) === 'normal'">
+                  {{ i.stockActual }} und.
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</div>

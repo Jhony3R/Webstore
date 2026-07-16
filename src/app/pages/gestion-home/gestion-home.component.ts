@@ -1,5 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { forkJoin, catchError, of, finalize } from 'rxjs';
+
+import { Venta } from '../../model/venta';
+import { EstadoInventarioItem, VentaDiaria } from '../../model/reporte';
+import { VentaService } from '../../services/venta.service';
+import { CajaService } from '../../services/caja.service';
+import { ReporteService } from '../../services/reporte.service';
 
 interface VentaReciente {
   comprobante: string;
@@ -22,34 +29,101 @@ interface ProductoStockBajo {
   templateUrl: './gestion-home.component.html',
 })
 export class GestionHomeComponent implements OnInit {
+  private ventaService = inject(VentaService);
+  private cajaService = inject(CajaService);
+  private reporteService = inject(ReporteService);
+
   username = signal<string>('');
   fechaHoy = new Date();
 
-  // TODO: reemplazar por datos reales desde venta.service.ts, caja.service.ts, producto.service.ts
-  ventasHoy = 1240.5;
-  cantidadVentasHoy = 18;
-  cajaAbierta = true;
-  saldoCaja = 350.0;
+  cargando = signal<boolean>(true);
+  error = signal<string | null>(null);
 
-  ventasRecientes: VentaReciente[] = [
-    { comprobante: 'B001-0245', cliente: 'María Quispe', total: 89.9, metodoPago: 'YAPE', hora: '11:42' },
-    { comprobante: 'B001-0244', cliente: 'Cliente varios', total: 45.0, metodoPago: 'EFECTIVO', hora: '11:20' },
-    { comprobante: 'B001-0243', cliente: 'Jorge Palomino', total: 156.0, metodoPago: 'TARJETA', hora: '10:55' },
-    { comprobante: 'B001-0242', cliente: 'Rosa Huamán', total: 72.5, metodoPago: 'PLIN', hora: '10:12' },
-  ];
+  ventasHoy = signal<number>(0);
+  cantidadVentasHoy = signal<number>(0);
+  cajaAbierta = signal<boolean>(false);
+  saldoCaja = signal<number>(0);
 
-  productosStockBajo: ProductoStockBajo[] = [
-    { nombre: 'Casaca jean azul - M', stockActual: 2, stockMinimo: 5 },
-    { nombre: 'Polo básico blanco - L', stockActual: 3, stockMinimo: 8 },
-    { nombre: 'Pantalón cargo negro - 32', stockActual: 1, stockMinimo: 5 },
-  ];
+  ventasRecientes = signal<VentaReciente[]>([]);
+  productosStockBajo = signal<ProductoStockBajo[]>([]);
 
   ngOnInit(): void {
     this.username.set(sessionStorage.getItem('username') || 'Usuario');
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.cargando.set(true);
+    this.error.set(null);
+
+    const hoy = formatDate(this.fechaHoy, 'yyyy-MM-dd', 'en-US');
+
+    forkJoin({
+      ventasDiarias: this.reporteService.getVentasDiarias(hoy, hoy).pipe(
+        catchError(() => of([] as VentaDiaria[]))
+      ),
+      caja: this.cajaService.getCajaAbierta().pipe(
+        catchError(() => of(null))
+      ),
+      ventas: this.ventaService.findAll().pipe(
+        catchError(() => of([] as Venta[]))
+      ),
+      inventario: this.reporteService.getEstadoInventario().pipe(
+        catchError(() => of([] as EstadoInventarioItem[]))
+      ),
+    })
+      .pipe(finalize(() => this.cargando.set(false)))
+      .subscribe({
+        next: ({ ventasDiarias, caja, ventas, inventario }) => {
+          // KPI: ventas de hoy
+          const resumenHoy = ventasDiarias[0];
+          this.ventasHoy.set(resumenHoy?.totalGeneral ?? 0);
+          this.cantidadVentasHoy.set(resumenHoy?.cantidadVentas ?? 0);
+
+          // Estado de caja
+          this.cajaAbierta.set(!!caja);
+          // TODO: reemplaza "saldoInicial" por el campo real que representa el saldo actual en tu modelo Caja
+          this.saldoCaja.set((caja as any)?.saldoInicial ?? 0);
+
+          // Ventas recientes: últimas 5, ordenadas por fecha descendente
+          const recientes = [...ventas]
+            .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+            .slice(0, 5)
+            .map((v) => ({
+              comprobante: v.numeroComprobante,
+              // TODO: ajusta al campo real de nombre en tu modelo Cliente
+              cliente: (v.cliente as any)?.nombre ?? 'Cliente varios',
+              total: v.total,
+              metodoPago: v.metodoPago as unknown as string,
+              hora: formatDate(v.fecha, 'HH:mm', 'en-US'),
+            }));
+          this.ventasRecientes.set(recientes);
+
+          // Productos con stock bajo o igual al mínimo
+          const bajos = inventario
+            .filter((p) => p.stockActual <= p.stockMinimo)
+            .sort((a, b) => a.stockActual / a.stockMinimo - b.stockActual / b.stockMinimo)
+            .map((p) => ({
+              nombre: p.descripcion,
+              stockActual: p.stockActual,
+              stockMinimo: p.stockMinimo,
+            }));
+          this.productosStockBajo.set(bajos);
+        },
+        error: () => {
+          this.error.set('No se pudieron cargar los datos del panel. Intenta nuevamente.');
+        },
+      });
+  }
+
+  get ticketPromedio(): number {
+    const cantidad = this.cantidadVentasHoy();
+    return cantidad > 0 ? this.ventasHoy() / cantidad : 0;
   }
 
   get productoMasBajo(): number {
-    if (!this.productosStockBajo.length) return 0;
-    return Math.min(...this.productosStockBajo.map((p) => p.stockActual / p.stockMinimo));
+    const lista = this.productosStockBajo();
+    if (!lista.length) return 0;
+    return Math.min(...lista.map((p) => p.stockActual / p.stockMinimo));
   }
 }

@@ -1,0 +1,70 @@
+<div style="font-family: 'Inter', sans-serif;" class="w-full">
+
+  <div class="mb-8">
+    <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Inventario</p>
+    <h1 class="text-3xl text-[#1C2333] mt-1.5" style="font-family: 'Fraunces', serif; font-weight: 600;">
+      {{ esEdicion ? 'Editar categoría' : 'Nueva categoría' }}
+    </h1>
+    <p class="text-sm text-[#8B8778] mt-1.5">
+      {{ esEdicion ? 'Actualiza la información de la categoría seleccionada.' : 'Completa los datos para registrar una nueva categoría.' }}
+    </p>
+  </div>
+
+  <form (ngSubmit)="guardar()" class="bg-white rounded-xl border border-[#E4DFD3] shadow-sm overflow-hidden">
+
+    <!-- Sección: Información general -->
+    <div class="p-7 space-y-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-8l-2-2H5a2 2 0 0 0-2 2z"/>
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Información general</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Nombre *</label>
+          <input
+            type="text"
+            [(ngModel)]="categoria.nombre"
+            name="nombre"
+            required
+            placeholder="ej. Ropa deportiva"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Descripción</label>
+        <textarea
+          [(ngModel)]="categoria.descripcion"
+          name="descripcion"
+          rows="3"
+          placeholder="ej. Prendas y accesorios para actividades deportivas"
+          class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B] resize-none"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Footer de acciones -->
+    <div class="flex items-center justify-end gap-3 px-7 py-5 bg-[#FAF6EF] border-t border-[#E4DFD3]">
+      <button
+        type="button"
+        (click)="cancelar()"
+        class="px-4 py-2.5 rounded-md text-sm font-medium text-[#6B6558] hover:bg-white transition"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="guardando"
+        class="px-6 py-2.5 rounded-md bg-[#1C2333] text-sm font-semibold text-white hover:bg-[#7C2D3B] transition disabled:opacity-60 shadow-sm"
+      >
+        {{ guardando ? 'Guardando...' : (esEdicion ? 'Guardar cambios' : 'Crear categoría') }}
+      </button>
+    </div>
+  </form>
+</div>
