@@ -97,7 +97,11 @@
           }
         },
         "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/Webstore/",
+            "deployUrl": "/Webstore/"
+          }
         }
       }
     }
