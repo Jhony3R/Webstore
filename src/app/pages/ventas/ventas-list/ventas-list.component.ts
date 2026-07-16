@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { VentaService } from '../../../services/venta.service';
 import { Venta } from '../../../model/venta';
+import { TokenService } from '../../../services/token.service';
 
 @Component({
   selector: 'app-ventas-list',
@@ -14,9 +15,14 @@ import { Venta } from '../../../model/venta';
 })
 export class VentasListComponent implements OnInit {
   private ventaService = inject(VentaService);
+  private tokenService = inject(TokenService);
+
+  esAdministrador = this.tokenService.getRol() === 'ADMINISTRADOR';
 
   ventas = signal<Venta[]>([]);
   cargando = signal(true);
+
+  generandoComprobanteId = signal<number | null>(null);
 
   busqueda = signal('');
   filtroEstado = signal<'TODOS' | 'COMPLETADA' | 'ANULADA'>('TODOS');
@@ -63,15 +69,47 @@ export class VentasListComponent implements OnInit {
 
   clienteNombre(v: Venta): string {
     const c = v.cliente as any;
-    return c?.nombres + ' ' + c?.apellidoPaterno + ' ' + c?.apellidoMaterno || c?.razonSocial || '—';
+    if (!c) {
+      return 'Sin cliente';
+    }
+    return [c.nombres, c.apellidoPaterno, c.apellidoMaterno].filter(Boolean).join(' ');
   }
 
   estaAnulada(v: Venta): boolean {
     return (v.estadoVenta as unknown as string) === 'ANULADA';
   }
 
+  verComprobante(v: Venta): void {
+    if (!v.idVenta) return;
+
+    const ventana = window.open('', '_blank');
+    this.generandoComprobanteId.set(v.idVenta);
+
+    this.ventaService.descargarComprobante(v.idVenta).subscribe({
+      next: (pdf) => {
+        this.generandoComprobanteId.set(null);
+        const url = window.URL.createObjectURL(pdf);
+        if (ventana) {
+          ventana.location.href = url;
+        } else {
+          window.open(url, '_blank');
+        }
+      },
+      error: () => {
+        this.generandoComprobanteId.set(null);
+        ventana?.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo obtener el comprobante',
+          confirmButtonColor: '#7C2D3B',
+          heightAuto: false,
+        });
+      },
+    });
+  }
+
   anularVenta(v: Venta): void {
-    if (this.estaAnulada(v) || !v.idVenta) return;
+    if (!this.esAdministrador || this.estaAnulada(v) || !v.idVenta) return;
 
     Swal.fire({
       icon: 'warning',
@@ -102,10 +140,11 @@ export class VentasListComponent implements OnInit {
             timer: 2200,
           });
         },
-        error: () => {
+        error: (err) => {
           Swal.fire({
             icon: 'error',
             title: 'No se pudo anular la venta',
+            text: err?.error?.message || 'Verifica los datos e intenta nuevamente.',
             confirmButtonColor: '#7C2D3B',
             heightAuto: false,
           });

@@ -11,7 +11,7 @@ export interface DetalleVentaRequest {
 }
 
 export interface VentaRequest {
-  idCliente: number;
+  idCliente: number | null;
   metodoPago: string;
   tipoDescuento?: string;
   valorDescuentoInput?: number;
@@ -53,5 +53,11 @@ export class VentaService extends GenericService<Venta>{
 
   anularVenta(id: number, motivo: string): Observable<Venta> {
     return this.http.put<Venta>(`${environment.HOST}/api/venta/${id}/anular`, { motivo });
+  }
+
+  descargarComprobante(id: number): Observable<Blob> {
+    return this.http.get(`${environment.HOST}/api/venta/${id}/comprobante`, {
+      responseType: 'blob',
+    });
   }
 }

@@ -5,6 +5,7 @@ import { tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { JwtResponse } from '../model/jwt/jwt-response';
 import { JwtRequest } from '../model/jwt/jwt-request';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,14 +16,15 @@ export class LoginService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private tokenService: TokenService,
   ) {}
 
   login(username: string, password: string) {
     const body: JwtRequest = { username, password };
     return this.http.post<JwtResponse>(this.url, body).pipe(
       tap((res) => {
-        sessionStorage.setItem(environment.TOKEN_NAME, res.access_token);
-        sessionStorage.setItem('rol', res.rol);
+        this.tokenService.saveToken(res.access_token);
+        this.tokenService.saveRol(res.rol);
         sessionStorage.setItem('username', username);
       }),
     );

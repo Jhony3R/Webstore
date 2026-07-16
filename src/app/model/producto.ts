@@ -11,4 +11,6 @@ export class Producto {
     stockMinimo:number;
     activo:boolean;
     fechaCreacion?:string;
+    idCategoria?: number;
+    nombreCategoria?: string;
 }

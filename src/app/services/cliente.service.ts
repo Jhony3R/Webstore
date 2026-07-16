@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Cliente } from '../model/cliente';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GenericService } from './generic.service';
 import { TokenService } from './token.service';
@@ -34,5 +34,9 @@ export class ClienteService extends GenericService<Cliente>{
 
   getMessageChange(){
     return this.messageChange.asObservable();
+  }
+
+  buscarPorDocumento(numeroDocumento: string): Observable<Cliente> {
+    return this.http.get<Cliente>(`${this.url}/documento/${numeroDocumento}`);
   }
 }

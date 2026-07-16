@@ -15,6 +15,7 @@ interface FilaDetalle {
   idProducto: number | null;
   producto?: Producto;
   cantidad: number;
+  equivalentes?: Producto[];
 }
 
 @Component({
@@ -30,6 +31,7 @@ export class VentaFormComponent implements OnInit {
   private router = inject(Router);
 
   guardando = false;
+  generandoComprobante = false;
 
   clientes: Cliente[] = [];
   productos: Producto[] = [];
@@ -45,6 +47,19 @@ export class VentaFormComponent implements OnInit {
   valorDescuentoInput = 0;
 
   filas: FilaDetalle[] = [];
+
+  mostrarNuevoCliente = false;
+  clienteEncontrado = false;
+  guardandoCliente = false;
+
+  nuevoCliente: Partial<Cliente> = {
+    tipoDocumento: 'DNI',
+    numeroDocumento: '',
+    nombres: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    telefono: '',
+  };
 
   ngOnInit(): void {
     this.clienteService.findAll().subscribe({
@@ -90,6 +105,31 @@ export class VentaFormComponent implements OnInit {
     if (fila.producto && fila.cantidad < 1) {
       fila.cantidad = 1;
     }
+
+    fila.equivalentes = [];
+
+    if (fila.producto && fila.producto.stockActual === 0) {
+      fila.equivalentes = this.productos.filter(
+        (p) =>
+          p.idProducto !== fila.producto!.idProducto &&
+          p.stockActual > 0 &&
+          p.idCategoria === fila.producto!.idCategoria &&
+          p.talla === fila.producto!.talla
+      );
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Producto agotado',
+        text: `"${fila.producto.descripcion}" no tiene stock disponible. Elige un artículo equivalente si lo necesitas.`,
+        confirmButtonColor: '#7C2D3B',
+        heightAuto: false,
+      });
+    }
+  }
+
+  seleccionarEquivalente(fila: FilaDetalle, equivalente: Producto): void {
+    fila.idProducto = equivalente.idProducto ?? null;
+    this.onProductoSeleccionado(fila);
   }
 
   precioUnitario(fila: FilaDetalle): number {
@@ -122,15 +162,6 @@ export class VentaFormComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.idCliente) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Selecciona un cliente',
-        confirmButtonColor: '#7C2D3B',
-        heightAuto: false,
-      });
-      return;
-    }
 
     if (!this.metodoPago) {
       Swal.fire({
@@ -158,9 +189,7 @@ export class VentaFormComponent implements OnInit {
       return;
     }
 
-    const stockInsuficiente = this.filasValidas().find(
-      (f) => f.producto && f.cantidad > f.producto.stockActual
-    );
+    const stockInsuficiente = this.stockInsuficienteAgregado();
     if (stockInsuficiente) {
       Swal.fire({
         icon: 'warning',
@@ -199,6 +228,7 @@ export class VentaFormComponent implements OnInit {
           timer: 2500,
         });
         this.limpiarFormulario();
+        this.recargarProductos();
       },
       error: (err) => {
         this.guardando = false;
@@ -208,8 +238,55 @@ export class VentaFormComponent implements OnInit {
           text: err?.error?.message || 'Verifica los datos e intenta nuevamente.',
           confirmButtonColor: '#7C2D3B',
           heightAuto: false,
+        }).then(() => {
+          this.recargarProductos();
         });
       },
+    });
+  }
+
+  verComprobante(idVenta: number): void {
+    const ventana = window.open('', '_blank');
+    this.generandoComprobante = true;
+
+    this.ventaService.descargarComprobante(idVenta).subscribe({
+      next: (pdf) => {
+        this.generandoComprobante = false;
+        const url = window.URL.createObjectURL(pdf);
+        if (ventana) {
+          ventana.location.href = url;
+        } else {
+          window.open(url, '_blank');
+        }
+      },
+      error: () => {
+        this.generandoComprobante = false;
+        ventana?.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo obtener el comprobante',
+          confirmButtonColor: '#7C2D3B',
+          heightAuto: false,
+        });
+      },
+    });
+  }
+
+  private recargarProductos(): void {
+    this.productoService.findAll().subscribe({
+      next: (data) => {
+        this.productos = data;
+        this.actualizarProductosDeFilas();
+      },
+      error: () => {},
+    });
+  }
+
+  private actualizarProductosDeFilas(): void {
+    this.filas.forEach((fila) => {
+      if (fila.idProducto) {
+        fila.producto = this.productos.find((p) => p.idProducto === fila.idProducto);
+      }
     });
   }
 
@@ -223,7 +300,95 @@ export class VentaFormComponent implements OnInit {
     this.agregarFila();
   }
 
+  productosParaFila(filaActual: FilaDetalle): Producto[] {
+    const idsUsadosEnOtrasFilas = this.filas
+      .filter((f) => f !== filaActual && f.idProducto !== null)
+      .map((f) => f.idProducto);
+
+    return this.productos.filter((p) => !idsUsadosEnOtrasFilas.includes(p.idProducto ?? null));
+  }
+
+  private stockInsuficienteAgregado(): FilaDetalle | undefined {
+    return this.filasValidas().find(
+      (f) => f.producto && f.cantidad > f.producto.stockActual
+    );
+  }
+
   irAlHistorial(): void {
     this.router.navigate(['/admin/ventas/historial']);
+  }
+
+  abrirModalCliente(): void {
+    this.mostrarNuevoCliente = true;
+    this.clienteEncontrado = false;
+    this.nuevoCliente = {
+      tipoDocumento: 'DNI',
+      numeroDocumento: '',
+      nombres: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      telefono: '',
+    };
+  }
+
+  cerrarModalCliente(): void {
+    this.mostrarNuevoCliente = false;
+  }
+
+  buscarClientePorDocumento(): void {
+    const doc = this.nuevoCliente.numeroDocumento?.trim();
+    if (!doc) return;
+
+    this.clienteService.buscarPorDocumento(doc).subscribe({
+      next: (cliente) => {
+        this.clienteEncontrado = true;
+        this.nuevoCliente = { ...cliente };
+        this.idCliente = cliente.idCliente!;
+      },
+      error: () => {
+        this.clienteEncontrado = false;
+      },
+    });
+  }
+
+  guardarNuevoCliente(): void {
+    if (!this.nuevoCliente.numeroDocumento || !this.nuevoCliente.nombres || !this.nuevoCliente.apellidoPaterno) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Completa los datos del cliente',
+        text: 'Documento, nombres y apellido paterno son obligatorios.',
+        confirmButtonColor: '#7C2D3B',
+        heightAuto: false,
+      });
+      return;
+    }
+
+    this.guardandoCliente = true;
+    this.clienteService.save(this.nuevoCliente as Cliente).subscribe({
+      next: (clienteCreado) => {
+        this.guardandoCliente = false;
+        this.clientes.push(clienteCreado);
+        this.idCliente = clienteCreado.idCliente!;
+        this.mostrarNuevoCliente = false;
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Cliente registrado',
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      },
+      error: (err) => {
+        this.guardandoCliente = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo registrar el cliente',
+          text: err?.error?.message || 'Verifica los datos e intenta nuevamente.',
+          confirmButtonColor: '#7C2D3B',
+          heightAuto: false,
+        });
+      },
+    });
   }
 }
