@@ -10,13 +10,14 @@ import {
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { ServerErrorInterceptor } from './interceptor/server.error.interceptor';
+import { ngrokSkipInterceptor } from './interceptor/ngrok-skip.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor]),
+      withInterceptors([authInterceptor,ngrokSkipInterceptor]),
       withInterceptorsFromDi(),
     ),
     { provide: HTTP_INTERCEPTORS, useClass: ServerErrorInterceptor, multi: true },

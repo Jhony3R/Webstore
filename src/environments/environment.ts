@@ -1,4 +1,5 @@
 export const environment = {
+  production: false,
   HOST: 'http://localhost:8080',
   RETRY: 2,
   VERSION: '2.0.0',
