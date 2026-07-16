@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Usuario } from '../model/usuario';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GenericService } from './generic.service';
 import { TokenService } from './token.service';
@@ -34,5 +34,9 @@ export class UsuarioService extends GenericService<Usuario>{
 
   getMessageChange(){
     return this.messageChange.asObservable();
+  }
+
+  findByUsername(username: string): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.url}/username/${username}`);
   }
 }

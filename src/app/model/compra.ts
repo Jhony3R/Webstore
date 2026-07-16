@@ -1,3 +1,4 @@
+import { DetalleCompra } from "./detalle-compra";
 import { Proveedor } from "./proveedor";
 import { Usuario } from "./usuario";
 
@@ -8,4 +9,5 @@ export class Compra {
     montoTotal:number;
     proveedor:Proveedor;
     usuario:Usuario;
+    detalles?: DetalleCompra[];
 }

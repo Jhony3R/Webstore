@@ -16,8 +16,13 @@ export const cajaAbiertaGuard: CanActivateFn = () => {
       confirmButtonText: 'Ir a caja',
       confirmButtonColor: '#7C2D3B',
       heightAuto: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.navigate(['/admin/caja/apertura']);
+      }
     });
-    return router.createUrlTree(['/admin/caja']);
+
+    return false;
   };
 
   return cajaService.getCajaAbierta().pipe(

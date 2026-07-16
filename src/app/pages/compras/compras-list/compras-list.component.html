@@ -1,0 +1,310 @@
+<div style="font-family: 'Inter', sans-serif;">
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Compras</p>
+      <h1 class="text-2xl text-[#1C2333] mt-1" style="font-family: 'Fraunces', serif; font-weight: 600;">
+        Historial de compras
+      </h1>
+    </div>
+    <a routerLink="/admin/compras"
+      class="inline-flex items-center gap-2 rounded-md bg-[#1C2333] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#7C2D3B] transition">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Nueva compra
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bg-white rounded-lg border border-[#E4DFD3] p-4 mb-5 flex flex-col lg:flex-row gap-3">
+    <div class="relative flex-1">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#B3AC9C]" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7" />
+        <path stroke-linecap="round" d="M21 21l-4-4" />
+      </svg>
+      <input type="text" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+        placeholder="Buscar por comprobante o proveedor..."
+        class="w-full rounded-md border border-[#E4DFD3] pl-9 pr-3 py-2 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+    </div>
+
+    <input type="date" [ngModel]="fechaDesde()" (ngModelChange)="fechaDesde.set($event)"
+      class="rounded-md border border-[#E4DFD3] px-3 py-2 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30" />
+
+    <input type="date" [ngModel]="fechaHasta()" (ngModelChange)="fechaHasta.set($event)"
+      class="rounded-md border border-[#E4DFD3] px-3 py-2 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30" />
+  </div>
+
+  <!-- Tabla -->
+  <div class="bg-white rounded-lg border border-[#E4DFD3] overflow-hidden">
+
+    <div *ngIf="cargando()" class="p-10 text-center text-sm text-[#8B8778]">
+      Cargando compras...
+    </div>
+
+    <div *ngIf="!cargando() && comprasFiltradas().length === 0" class="p-10 text-center">
+      <p class="text-sm text-[#8B8778]">No se encontraron compras con esos filtros.</p>
+    </div>
+
+    <div *ngIf="!cargando() && comprasFiltradas().length > 0" class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-[#8B8778] text-xs uppercase tracking-wide border-b border-[#E4DFD3]">
+            <th class="px-5 py-3 font-medium">Comprobante</th>
+            <th class="px-5 py-3 font-medium">Fecha</th>
+            <th class="px-5 py-3 font-medium">Proveedor</th>
+            <th class="px-5 py-3 font-medium">Registrado por</th>
+            <th class="px-5 py-3 font-medium text-right">Total</th>
+            <th class="px-5 py-3 font-medium text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let compra of comprasFiltradas()"
+            class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF]">
+            <td class="px-5 py-3 font-medium text-[#1C2333]">{{ compra.numeroComprobante }}</td>
+            <td class="px-5 py-3 text-[#6B6558]">{{ compra.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="px-5 py-3 text-[#3A362F] max-w-[200px] truncate">{{ proveedorNombre(compra) }}</td>
+            <td class="px-5 py-3 text-[#6B6558]">{{ usuarioNombre(compra) }}</td>
+            <td class="px-5 py-3 text-right font-medium text-[#1C2333]">S/ {{ compra.montoTotal | number: '1.2-2' }}
+            </td>
+            <td class="px-5 py-3">
+              <div class="flex items-center justify-end gap-2">
+                <button (click)="verDetalle(compra)" title="Ver detalle"
+                  class="p-1.5 rounded-md text-[#7C2D3B] hover:bg-[#7C2D3B]/10 transition">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+                <button (click)="eliminarCompra(compra)" [disabled]="eliminandoId() === compra.idCompra"
+                  title="Eliminar compra"
+                  class="p-1.5 rounded-md text-red-500 hover:bg-red-50 transition disabled:opacity-30 disabled:hover:bg-transparent">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- Modal Detalle Compra -->
+<div
+  *ngIf="mostrarDetalle()"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between border-b border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
+
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-[#7C2D3B] font-semibold">
+          Compras
+        </p>
+
+        <h2
+          class="text-2xl text-[#1C2333]"
+          style="font-family: 'Fraunces', serif; font-weight:600;">
+
+          Detalle de la compra
+
+        </h2>
+      </div>
+
+      <button
+        (click)="cerrarDetalle()"
+        class="rounded-md p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-500">
+
+        <svg class="w-5 h-5"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             viewBox="0 0 24 24">
+
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"/>
+
+        </svg>
+
+      </button>
+
+    </div>
+
+    <!-- Body -->
+    <div class="overflow-y-auto max-h-[calc(90vh-160px)] p-6">
+
+      <!-- Información -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+
+        <div class="rounded-lg border border-[#E4DFD3] bg-[#FAF6EF] p-4">
+          <p class="text-xs uppercase tracking-wide text-[#8B8778]">
+            Comprobante
+          </p>
+
+          <p class="mt-1 font-semibold text-[#1C2333]">
+            {{ detalleCompra()?.numeroComprobante }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[#E4DFD3] bg-[#FAF6EF] p-4">
+          <p class="text-xs uppercase tracking-wide text-[#8B8778]">
+            Fecha
+          </p>
+
+          <p class="mt-1 font-semibold text-[#1C2333]">
+            {{ detalleCompra()?.fecha | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[#E4DFD3] bg-[#FAF6EF] p-4">
+          <p class="text-xs uppercase tracking-wide text-[#8B8778]">
+            Proveedor
+          </p>
+
+          <p class="mt-1 font-semibold text-[#1C2333]">
+            {{ proveedorNombre(detalleCompra()!) }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[#E4DFD3] bg-[#FAF6EF] p-4">
+          <p class="text-xs uppercase tracking-wide text-[#8B8778]">
+            Registrado por
+          </p>
+
+          <p class="mt-1 font-semibold text-[#1C2333]">
+            {{ usuarioNombre(detalleCompra()!) }}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Tabla -->
+      <div class="overflow-hidden rounded-lg border border-[#E4DFD3]">
+
+        <table class="min-w-full text-sm">
+
+          <thead class="bg-[#FAF6EF]">
+
+            <tr class="border-b border-[#E4DFD3] text-xs uppercase tracking-wide text-[#8B8778]">
+
+              <th class="px-5 py-3 text-left font-medium">
+                Producto
+              </th>
+
+              <th class="px-5 py-3 text-center font-medium w-32">
+                Cantidad
+              </th>
+
+              <th class="px-5 py-3 text-right font-medium w-40">
+                Precio Unitario
+              </th>
+
+              <th class="px-5 py-3 text-right font-medium w-40">
+                Subtotal
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let detalle of detalleCompra()?.detalles"
+              class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF] transition">
+
+              <td class="px-5 py-4">
+
+                <div class="flex flex-col">
+
+                  <span class="font-semibold text-[#1C2333]">
+                    {{ detalle.producto.descripcion }}
+                  </span>
+
+                  <span
+                    *ngIf="detalle.producto.codigo"
+                    class="text-xs text-[#8B8778] mt-1">
+
+                    Código:
+                    {{ detalle.producto.codigo }}
+
+                  </span>
+
+                </div>
+
+              </td>
+
+              <td class="px-5 py-4 text-center font-medium text-[#3A362F]">
+                {{ detalle.cantidad }}
+              </td>
+
+              <td class="px-5 py-4 text-right text-[#3A362F]">
+                S/ {{ detalle.precioUnitario | number:'1.2-2' }}
+              </td>
+
+              <td class="px-5 py-4 text-right font-semibold text-[#1C2333]">
+                S/
+                {{ detalle.cantidad * detalle.precioUnitario | number:'1.2-2' }}
+              </td>
+
+            </tr>
+
+          </tbody>
+
+          <tfoot class="bg-[#FAF6EF] border-t border-[#E4DFD3]">
+
+            <tr>
+
+              <td colspan="3"
+                  class="px-5 py-4 text-right font-semibold text-[#3A362F]">
+
+                Total de la compra
+
+              </td>
+
+              <td
+                class="px-5 py-4 text-right text-xl font-bold text-[#7C2D3B]">
+
+                S/
+                {{ detalleCompra()?.montoTotal | number:'1.2-2' }}
+
+              </td>
+
+            </tr>
+
+          </tfoot>
+
+        </table>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="flex justify-end gap-3 border-t border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
+
+      <button
+        (click)="cerrarDetalle()"
+        class="rounded-md bg-[#1C2333] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#7C2D3B]">
+
+        Cerrar
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

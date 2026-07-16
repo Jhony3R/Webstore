@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { tap } from 'rxjs';
+import { switchMap, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { JwtResponse } from '../model/jwt/jwt-response';
 import { JwtRequest } from '../model/jwt/jwt-request';
 import { TokenService } from './token.service';
+import { UsuarioService } from './usuario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,16 +18,23 @@ export class LoginService {
     private http: HttpClient,
     private router: Router,
     private tokenService: TokenService,
+    private usuarioService: UsuarioService
   ) {}
 
   login(username: string, password: string) {
     const body: JwtRequest = { username, password };
+
     return this.http.post<JwtResponse>(this.url, body).pipe(
       tap((res) => {
         this.tokenService.saveToken(res.access_token);
         this.tokenService.saveRol(res.rol);
+
         sessionStorage.setItem('username', username);
       }),
+      switchMap(() => this.usuarioService.findByUsername(username)),
+      tap(usuario => {
+        this.tokenService.saveIdUsuario(usuario.idUsuario);
+      })
     );
   }
 

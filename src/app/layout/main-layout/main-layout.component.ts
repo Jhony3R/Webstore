@@ -32,7 +32,7 @@ export class MainLayoutComponent implements OnInit {
     { label: 'Productos', route: '/admin/productos', icon: 'tag' },
     { label: 'Categorías', route: '/admin/categorias', icon: 'grid' },
     { label: 'Ajuste de inventario', route: '/admin/ajuste-inventario', icon: 'adjust', rolesPermitidos: ['ADMINISTRADOR'] },
-    { label: 'Compras', route: '/admin/compras', icon: 'truck' },
+    { label: 'Compras', route: '/admin/compras', icon: 'truck', rolesPermitidos: ['ADMINISTRADOR'] },
     { label: 'Proveedores', route: '/admin/proveedores', icon: 'building' },
     { label: 'Clientes', route: '/admin/clientes', icon: 'users' },
     { label: 'Reportes', route: '/admin/reportes', icon: 'chart' },

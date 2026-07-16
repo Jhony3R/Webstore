@@ -29,6 +29,7 @@ export const routes: Routes = [
       { path: 'clientes', loadChildren: () => import('./pages/clientes/clientes.routes').then(m => m.CLIENTES_ROUTES) },
       { path: 'proveedores', loadChildren: () => import('./pages/proveedores/proveedores.routes').then(m => m.PROVEEDORES_ROUTES) },
       { path: 'ventas', loadChildren: () => import('./pages/ventas/ventas.routes').then(m => m.VENTAS_ROUTES) },
+      { path: 'compras', loadChildren: () => import('./pages/compras/compras.routes').then(m => m.COMPRAS_ROUTES) },
       {
         path: 'ajuste-inventario',
         canActivate: [roleGuard(['ADMINISTRADOR'])],

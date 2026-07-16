@@ -11,6 +11,10 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { ServerErrorInterceptor } from './interceptor/server.error.interceptor';
 import { ngrokSkipInterceptor } from './interceptor/ngrok-skip.interceptor';
+import localeEs from '@angular/common/locales/es';
+import { registerLocaleData } from '@angular/common';
+
+registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +24,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor,ngrokSkipInterceptor]),
       withInterceptorsFromDi(),
     ),
-    { provide: HTTP_INTERCEPTORS, useClass: ServerErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ServerErrorInterceptor, multi: true},
   ],
 };
