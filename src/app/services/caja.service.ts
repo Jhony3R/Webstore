@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Caja } from '../model/caja';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, Subject } from 'rxjs';
+import { catchError, map, Observable, of, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GenericService } from './generic.service';
 import { TokenService } from './token.service';
@@ -39,7 +39,8 @@ export class CajaService extends GenericService<Caja>{
   }
 
   getCajaAbierta(): Observable<Caja | null> {
-    return this.http.get<Caja | null>(`${environment.HOST}/api/caja/mi-caja-abierta`);
+    return this.http.get<Caja>(`${environment.HOST}/api/caja/mi-caja-abierta`)
+      .pipe(catchError(() => of(null)));
   }
 
   abrirCaja(saldoInicial: number): Observable<Caja> {
@@ -51,5 +52,12 @@ export class CajaService extends GenericService<Caja>{
       efectivoContado,
       observacionDescuadre: observacionDescuadre ?? ''
     });
+  }
+
+  listarCajas(): Observable<Caja[]> {
+    const url = this.tokenService.isAdmin()
+      ? `${environment.HOST}/api/caja`
+      : `${environment.HOST}/api/caja/mis-cajas`;
+    return this.http.get<Caja[]>(url);
   }
 }

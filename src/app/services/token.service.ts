@@ -29,4 +29,9 @@ export class TokenService {
   removeRol(): void {
     sessionStorage.removeItem('rol');
   }
+
+  isAdmin(): boolean {
+    const rol = this.getRol();
+    return rol === 'ADMINISTRADOR' || rol === 'ROLE_ADMIN';
+  }
 }
