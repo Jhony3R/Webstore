@@ -1,0 +1,1 @@
+var o={ABIERTA:"ABIERTA",CERRADA:"CERRADA"},E=["EFECTIVO","YAPE","PLIN","TARJETA","TRANSFERENCIA"],t={EFECTIVO:"Efectivo",YAPE:"Yape",PLIN:"Plin",TARJETA:"Tarjeta",TRANSFERENCIA:"Transferencia"};export{o as a,E as b,t as c};
