@@ -1,1 +1,0 @@
-import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-VOCHIW4L.js").then(o=>o.ComprasFormComponent)},{path:"historial",loadComponent:()=>import("./chunk-JESIW5IC.js").then(o=>o.ComprasListComponent)}];export{t as COMPRAS_ROUTES};

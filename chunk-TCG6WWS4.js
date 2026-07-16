@@ -1,0 +1,1 @@
+import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-EFQEFM3W.js").then(o=>o.CategoriasListComponent)},{path:"nuevo",loadComponent:()=>import("./chunk-JMY6AXXC.js").then(o=>o.CategoriasFormComponent)},{path:"editar/:id",loadComponent:()=>import("./chunk-JMY6AXXC.js").then(o=>o.CategoriasFormComponent)}];export{t as CATEGORIAS_ROUTES};

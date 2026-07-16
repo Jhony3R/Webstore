@@ -1,0 +1,1 @@
+import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-G4BE7DDW.js").then(o=>o.ProveedorListComponent)},{path:"nuevo",loadComponent:()=>import("./chunk-BFLWKCU4.js").then(o=>o.ProveedorFormComponent)},{path:"editar/:id",loadComponent:()=>import("./chunk-BFLWKCU4.js").then(o=>o.ProveedorFormComponent)}];export{t as PROVEEDORES_ROUTES};

@@ -1,1 +1,0 @@
-import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-U5K27HOX.js").then(o=>o.CajaListComponent)},{path:"apertura",loadComponent:()=>import("./chunk-EMXO5VFP.js").then(o=>o.CajaAperturaComponent)},{path:"cierre/:id",loadComponent:()=>import("./chunk-HGES4NLK.js").then(o=>o.CajaCierreComponent)}];export{t as CAJA_ROUTES};
