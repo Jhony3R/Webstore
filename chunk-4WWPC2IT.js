@@ -1,0 +1,1 @@
+import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-H6EVG2BT.js").then(o=>o.AjusteInventarioListComponent)},{path:"nuevo",loadComponent:()=>import("./chunk-PQQXH6MF.js").then(o=>o.AjusteInventarioFormComponent)}];export{t as AJUSTE_INVENTARIO_ROUTES};

@@ -1,1 +1,0 @@
-import"./chunk-FDERIQAA.js";var t=[{path:"",loadComponent:()=>import("./chunk-EFSZ7ZQK.js").then(o=>o.ClienteListComponent)},{path:"nuevo",loadComponent:()=>import("./chunk-BHSYPMNL.js").then(o=>o.ClienteFormComponent)},{path:"editar/:id",loadComponent:()=>import("./chunk-BHSYPMNL.js").then(o=>o.ClienteFormComponent)}];export{t as CLIENTES_ROUTES};
