@@ -96,44 +96,32 @@
   </div>
 </div>
 <!-- Modal Detalle Compra -->
-<div
-  *ngIf="mostrarDetalle()"
+<div *ngIf="mostrarDetalle()"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
 
   <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
 
     <!-- Header -->
-    <div
-      class="flex items-center justify-between border-b border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
+    <div class="flex items-center justify-between border-b border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
 
       <div>
         <p class="text-xs uppercase tracking-[0.2em] text-[#7C2D3B] font-semibold">
           Compras
         </p>
 
-        <h2
-          class="text-2xl text-[#1C2333]"
-          style="font-family: 'Fraunces', serif; font-weight:600;">
+        <h2 class="text-2xl text-[#1C2333]" style="font-family: 'Fraunces', serif; font-weight:600;">
 
           Detalle de la compra
 
         </h2>
       </div>
 
-      <button
-        (click)="cerrarDetalle()"
+      <button (click)="cerrarDetalle()"
         class="rounded-md p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-500">
 
-        <svg class="w-5 h-5"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2"
-             viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
 
         </svg>
 
@@ -192,111 +180,61 @@
       <!-- Tabla -->
       <div class="overflow-hidden rounded-lg border border-[#E4DFD3]">
 
-        <table class="min-w-full text-sm">
+        <!-- Tabla -->
+        <div class="overflow-hidden rounded-lg border border-[#E4DFD3]">
 
-          <thead class="bg-[#FAF6EF]">
+          <div class="overflow-x-auto">
+            <table class="min-w-[640px] w-full text-sm">
 
-            <tr class="border-b border-[#E4DFD3] text-xs uppercase tracking-wide text-[#8B8778]">
+              <thead class="bg-[#FAF6EF]">
+                <tr class="border-b border-[#E4DFD3] text-xs uppercase tracking-wide text-[#8B8778]">
+                  <th class="px-5 py-3 text-left font-medium">Producto</th>
+                  <th class="px-5 py-3 text-center font-medium w-32">Cantidad</th>
+                  <th class="px-5 py-3 text-right font-medium w-40">Precio Unitario</th>
+                  <th class="px-5 py-3 text-right font-medium w-40">Subtotal</th>
+                </tr>
+              </thead>
 
-              <th class="px-5 py-3 text-left font-medium">
-                Producto
-              </th>
+              <tbody>
+                <tr *ngFor="let detalle of detalleCompra()?.detalles"
+                  class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF] transition">
+                  <td class="px-5 py-4">
+                    <div class="flex flex-col">
+                      <span class="font-semibold text-[#1C2333]">{{ detalle.producto.descripcion }}</span>
+                      <span *ngIf="detalle.producto.codigo" class="text-xs text-[#8B8778] mt-1">
+                        Código: {{ detalle.producto.codigo }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4 text-center font-medium text-[#3A362F]">{{ detalle.cantidad }}</td>
+                  <td class="px-5 py-4 text-right text-[#3A362F]">S/ {{ detalle.precioUnitario | number:'1.2-2' }}</td>
+                  <td class="px-5 py-4 text-right font-semibold text-[#1C2333]">
+                    S/ {{ detalle.cantidad * detalle.precioUnitario | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tbody>
 
-              <th class="px-5 py-3 text-center font-medium w-32">
-                Cantidad
-              </th>
+              <tfoot class="bg-[#FAF6EF] border-t border-[#E4DFD3]">
+                <tr>
+                  <td colspan="3" class="px-5 py-4 text-right font-semibold text-[#3A362F]">Total de la compra</td>
+                  <td class="px-5 py-4 text-right text-xl font-bold text-[#7C2D3B]">
+                    S/ {{ detalleCompra()?.montoTotal | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tfoot>
 
-              <th class="px-5 py-3 text-right font-medium w-40">
-                Precio Unitario
-              </th>
-
-              <th class="px-5 py-3 text-right font-medium w-40">
-                Subtotal
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            <tr
-              *ngFor="let detalle of detalleCompra()?.detalles"
-              class="border-b border-[#F0EDE3] last:border-0 hover:bg-[#FAF6EF] transition">
-
-              <td class="px-5 py-4">
-
-                <div class="flex flex-col">
-
-                  <span class="font-semibold text-[#1C2333]">
-                    {{ detalle.producto.descripcion }}
-                  </span>
-
-                  <span
-                    *ngIf="detalle.producto.codigo"
-                    class="text-xs text-[#8B8778] mt-1">
-
-                    Código:
-                    {{ detalle.producto.codigo }}
-
-                  </span>
-
-                </div>
-
-              </td>
-
-              <td class="px-5 py-4 text-center font-medium text-[#3A362F]">
-                {{ detalle.cantidad }}
-              </td>
-
-              <td class="px-5 py-4 text-right text-[#3A362F]">
-                S/ {{ detalle.precioUnitario | number:'1.2-2' }}
-              </td>
-
-              <td class="px-5 py-4 text-right font-semibold text-[#1C2333]">
-                S/
-                {{ detalle.cantidad * detalle.precioUnitario | number:'1.2-2' }}
-              </td>
-
-            </tr>
-
-          </tbody>
-
-          <tfoot class="bg-[#FAF6EF] border-t border-[#E4DFD3]">
-
-            <tr>
-
-              <td colspan="3"
-                  class="px-5 py-4 text-right font-semibold text-[#3A362F]">
-
-                Total de la compra
-
-              </td>
-
-              <td
-                class="px-5 py-4 text-right text-xl font-bold text-[#7C2D3B]">
-
-                S/
-                {{ detalleCompra()?.montoTotal | number:'1.2-2' }}
-
-              </td>
-
-            </tr>
-
-          </tfoot>
-
-        </table>
+            </table>
+          </div>
+        </div>
 
       </div>
 
     </div>
 
     <!-- Footer -->
-    <div
-      class="flex justify-end gap-3 border-t border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
+    <div class="flex justify-end gap-3 border-t border-[#E4DFD3] bg-[#FAF6EF] px-6 py-4">
 
-      <button
-        (click)="cerrarDetalle()"
+      <button (click)="cerrarDetalle()"
         class="rounded-md bg-[#1C2333] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#7C2D3B]">
 
         Cerrar
