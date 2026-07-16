@@ -1,0 +1,95 @@
+<div style="font-family: 'Inter', sans-serif;" *ngIf="!cargando">
+  <div *ngIf="caja">
+
+    <!-- Encabezado -->
+    <div class="mb-6">
+      <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Caja</p>
+      <h1 class="text-2xl text-[#1C2333] mt-1" style="font-family: 'Fraunces', serif; font-weight: 600;">
+        Cierre de Caja #{{ caja.idCaja }}
+      </h1>
+      <p class="text-sm text-[#8B8778] mt-1">
+        Apertura: {{ caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+      <!-- Resumen de montos -->
+      <div class="lg:col-span-3 bg-white rounded-lg border border-[#E4DFD3] p-6">
+        <h2 class="text-sm font-semibold text-[#1C2333] mb-4">Resumen de la sesión</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Saldo Inicial</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.saldoInicial) }}</p>
+          </div>
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Efectivo Esperado</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.saldoEsperadoEfectivo) }}</p>
+          </div>
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Yape</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.totalYape) }}</p>
+          </div>
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Plin</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.totalPlin) }}</p>
+          </div>
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Tarjeta</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.totalTarjeta) }}</p>
+          </div>
+          <div class="bg-[#FAF6EF] rounded-md border border-[#E4DFD3] p-4">
+            <p class="text-[#8B8778] text-xs uppercase tracking-wide">Transferencia</p>
+            <p class="font-semibold text-[#1C2333] text-lg mt-1">{{ formatMoney(caja.totalTransferencia) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de cierre -->
+      <div class="lg:col-span-2 bg-white rounded-lg border border-[#E4DFD3] p-6 h-fit">
+        <h2 class="text-sm font-semibold text-[#1C2333] mb-4">Cerrar caja</h2>
+
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <label class="block text-sm font-medium text-[#3A362F] mb-1">Efectivo Contado (S/)</label>
+          <input
+            type="number"
+            step="0.01"
+            formControlName="efectivoContado"
+            class="w-full rounded-md border border-[#E4DFD3] px-3 py-2.5 mb-3 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]"
+            placeholder="0.00" />
+
+          <div *ngIf="form.value.efectivoContado != null"
+            class="rounded-md p-3 mb-4 text-sm font-medium"
+            [ngClass]="descuadre === 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">
+            {{ descuadre === 0 ? 'La caja cuadra correctamente.' :
+               (descuadre > 0 ? 'Sobrante de ' : 'Faltante de ') + formatMoney(descuadre < 0 ? -descuadre : descuadre) }}
+          </div>
+
+          <div *ngIf="requiereObservacion">
+            <label class="block text-sm font-medium text-[#3A362F] mb-1">Observación del descuadre</label>
+            <textarea
+              formControlName="observacionDescuadre"
+              rows="3"
+              class="w-full rounded-md border border-[#E4DFD3] px-3 py-2.5 mb-3 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]"
+              placeholder="Explica el motivo del sobrante/faltante..."></textarea>
+          </div>
+
+          <p *ngIf="error" class="text-red-600 text-sm mb-3">{{ error }}</p>
+
+          <div class="flex gap-3 mt-2">
+            <button type="button" (click)="cancelar()"
+              class="flex-1 rounded-md border border-[#E4DFD3] text-[#3A362F] py-2.5 text-sm font-semibold hover:bg-[#FAF6EF] transition">
+              Cancelar
+            </button>
+            <button type="submit" [disabled]="guardando"
+              class="flex-1 rounded-md bg-[#1C2333] text-white py-2.5 text-sm font-semibold hover:bg-[#7C2D3B] disabled:opacity-60 transition">
+              {{ guardando ? 'Cerrando...' : 'Cerrar Caja' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

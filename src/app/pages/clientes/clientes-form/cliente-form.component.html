@@ -1,0 +1,140 @@
+<div style="font-family: 'Inter', sans-serif;" class="w-full" *ngIf="!cargando">
+
+  <div class="mb-8">
+    <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Clientes</p>
+    <h1 class="text-3xl text-[#1C2333] mt-1.5" style="font-family: 'Fraunces', serif; font-weight: 600;">
+      {{ editando ? 'Editar Cliente' : 'Nuevo Cliente' }}
+    </h1>
+    <p class="text-sm text-[#8B8778] mt-1.5">
+      {{ editando ? 'Actualiza los datos del cliente.' : 'Registra un nuevo cliente en el sistema.' }}
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="bg-white rounded-xl border border-[#E4DFD3] shadow-sm overflow-hidden">
+
+    <!-- Sección: Documento -->
+    <div class="p-7 space-y-5 border-b border-[#F0EDE3]">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <path stroke-linecap="round" d="M7 9h10M7 13h6" />
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Documento de identidad</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Tipo de documento</label>
+          <select formControlName="tipoDocumento"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]">
+            <option value="DNI">DNI</option>
+            <option value="RUC">RUC</option>
+            <option value="CE">Carné de Extranjería</option>
+          </select>
+        </div>
+
+        <div class="sm:col-span-2 lg:col-span-3">
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">N° de documento</label>
+          <input type="text" formControlName="numeroDocumento"
+            placeholder="Ej. 12345678"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('numeroDocumento')?.touched && form.get('numeroDocumento')?.invalid"
+            class="text-red-600 text-xs mt-1">
+            El número de documento es obligatorio.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Datos personales -->
+    <div class="p-7 space-y-5 border-b border-[#F0EDE3] bg-[#FAF6EF]/40">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/>
+            <path stroke-linecap="round" d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Datos personales</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Nombres</label>
+          <input type="text" formControlName="nombres"
+            placeholder="Nombres"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('nombres')?.touched && form.get('nombres')?.invalid"
+            class="text-red-600 text-xs mt-1">Obligatorio.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Apellido paterno</label>
+          <input type="text" formControlName="apellidoPaterno"
+            placeholder="Apellido paterno"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('apellidoPaterno')?.touched && form.get('apellidoPaterno')?.invalid"
+            class="text-red-600 text-xs mt-1">Obligatorio.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Apellido materno</label>
+          <input type="text" formControlName="apellidoMaterno"
+            placeholder="Apellido materno"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('apellidoMaterno')?.touched && form.get('apellidoMaterno')?.invalid"
+            class="text-red-600 text-xs mt-1">Obligatorio.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Contacto -->
+    <div class="p-7 space-y-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.13.99.36 1.96.68 2.89a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.19-1.24a2 2 0 0 1 2.11-.45c.93.32 1.9.55 2.89.68A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Contacto</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Teléfono</label>
+          <input type="text" formControlName="telefono"
+            placeholder="999 999 999"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Email</label>
+          <input type="email" formControlName="email"
+            placeholder="correo@ejemplo.com"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
+            class="text-red-600 text-xs mt-1">Ingresa un email válido.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Dirección</label>
+          <input type="text" formControlName="direccion"
+            placeholder="Dirección completa"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+        </div>
+      </div>
+
+      <p *ngIf="error" class="text-red-600 text-sm">{{ error }}</p>
+    </div>
+
+    <!-- Footer de acciones -->
+    <div class="flex items-center justify-end gap-3 px-7 py-5 bg-[#FAF6EF] border-t border-[#E4DFD3]">
+      <button type="button" (click)="cancelar()"
+        class="px-4 py-2.5 rounded-md text-sm font-medium text-[#6B6558] hover:bg-white transition">
+        Cancelar
+      </button>
+      <button type="submit" [disabled]="guardando"
+        class="px-6 py-2.5 rounded-md bg-[#1C2333] text-sm font-semibold text-white hover:bg-[#7C2D3B] transition disabled:opacity-60 shadow-sm">
+        {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear cliente') }}
+      </button>
+    </div>
+  </form>
+</div>

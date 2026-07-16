@@ -1,10 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Venta } from '../model/venta';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GenericService } from './generic.service';
-import { TokenService } from './token.service';
+
+export interface DetalleVentaRequest {
+  idProducto: number;
+  cantidad: number;
+}
+
+export interface VentaRequest {
+  idCliente: number;
+  metodoPago: string;
+  tipoDescuento?: string;
+  valorDescuentoInput?: number;
+  detalles: DetalleVentaRequest[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +27,6 @@ export class VentaService extends GenericService<Venta>{
 
   constructor(
     protected override http: HttpClient,
-    private tokenService: TokenService
   ) {
     super(http, `${environment.HOST}/api/venta`);
   }
@@ -34,5 +45,13 @@ export class VentaService extends GenericService<Venta>{
 
   getMessageChange(){
     return this.messageChange.asObservable();
+  }
+
+  registrarVenta(request: VentaRequest): Observable<Venta> {
+    return this.http.post<Venta>(`${environment.HOST}/api/venta/registrar`, request);
+  }
+
+  anularVenta(id: number, motivo: string): Observable<Venta> {
+    return this.http.put<Venta>(`${environment.HOST}/api/venta/${id}/anular`, { motivo });
   }
 }

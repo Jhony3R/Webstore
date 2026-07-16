@@ -1,0 +1,123 @@
+<div style="font-family: 'Inter', sans-serif;" class="w-full" *ngIf="!cargando">
+
+  <div class="mb-8">
+    <p class="text-xs font-semibold tracking-[0.2em] text-[#7C2D3B] uppercase">Proveedores</p>
+    <h1 class="text-3xl text-[#1C2333] mt-1.5" style="font-family: 'Fraunces', serif; font-weight: 600;">
+      {{ editando ? 'Editar Proveedor' : 'Nuevo Proveedor' }}
+    </h1>
+    <p class="text-sm text-[#8B8778] mt-1.5">
+      {{ editando ? 'Actualiza los datos del proveedor.' : 'Registra un nuevo proveedor en el sistema.' }}
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="bg-white rounded-xl border border-[#E4DFD3] shadow-sm overflow-hidden">
+
+    <!-- Sección: Datos de la empresa -->
+    <div class="p-7 space-y-5 border-b border-[#F0EDE3]">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1" />
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Datos de la empresa</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="sm:col-span-2 lg:col-span-3">
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Razón social</label>
+          <input type="text" formControlName="razonSocial"
+            placeholder="Ej. Distribuidora Textil S.A.C."
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('razonSocial')?.touched && form.get('razonSocial')?.invalid"
+            class="text-red-600 text-xs mt-1">
+            La razón social es obligatoria.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">RUC</label>
+          <input type="text" formControlName="ruc"
+            placeholder="Ej. 20123456789"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('ruc')?.touched && form.get('ruc')?.invalid"
+            class="text-red-600 text-xs mt-1">
+            El RUC es obligatorio.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Contacto -->
+    <div class="p-7 space-y-5 border-b border-[#F0EDE3] bg-[#FAF6EF]/40">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.13.99.36 1.96.68 2.89a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.19-1.24a2 2 0 0 1 2.11-.45c.93.32 1.9.55 2.89.68A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Contacto</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Persona de contacto</label>
+          <input type="text" formControlName="contacto"
+            placeholder="Ej. Juan Pérez"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Teléfono</label>
+          <input type="text" formControlName="telefono"
+            placeholder="999 999 999"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Email</label>
+          <input type="email" formControlName="email"
+            placeholder="correo@ejemplo.com"
+            class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+          <p *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
+            class="text-red-600 text-xs mt-1">Ingresa un email válido.</p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-[#3A362F] mb-1.5">Dirección</label>
+        <input type="text" formControlName="direccion"
+          placeholder="Dirección completa"
+          class="w-full rounded-md border border-[#E4DFD3] px-3.5 py-2.5 text-sm text-[#1C2333] bg-white placeholder:text-[#B3AC9C] focus:outline-none focus:ring-2 focus:ring-[#7C2D3B]/30 focus:border-[#7C2D3B]" />
+      </div>
+    </div>
+
+    <!-- Sección: Estado -->
+    <div class="p-7 space-y-4">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-7 w-7 rounded-md bg-[#7C2D3B]/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-[#7C2D3B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+          </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-[#1C2333] uppercase tracking-wide">Estado</h2>
+      </div>
+
+      <label class="inline-flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" formControlName="activo"
+          class="h-4 w-4 rounded border-[#E4DFD3] text-[#7C2D3B] focus:ring-[#7C2D3B]/30" />
+        <span class="text-sm text-[#3A362F]">Proveedor activo</span>
+      </label>
+    </div>
+
+    <!-- Footer de acciones -->
+    <div class="flex items-center justify-end gap-3 px-7 py-5 bg-[#FAF6EF] border-t border-[#E4DFD3]">
+      <button type="button" (click)="cancelar()"
+        class="px-4 py-2.5 rounded-md text-sm font-medium text-[#6B6558] hover:bg-white transition">
+        Cancelar
+      </button>
+      <button type="submit" [disabled]="guardando"
+        class="px-6 py-2.5 rounded-md bg-[#1C2333] text-sm font-semibold text-white hover:bg-[#7C2D3B] transition disabled:opacity-60 shadow-sm">
+        {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear proveedor') }}
+      </button>
+    </div>
+  </form>
+</div>

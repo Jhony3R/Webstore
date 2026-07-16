@@ -1,5 +1,6 @@
 import { Caja } from "./caja";
 import { Cliente } from "./cliente";
+import { DetalleVenta } from "./detalle-venta";
 import { EstadoVenta, MetodoPago, TipoDescuento } from "./enums";
 import { Usuario } from "./usuario";
 
@@ -18,4 +19,5 @@ export class Venta {
     cliente:Cliente;
     usuario:Usuario;
     caja:Caja;
+    detalles: DetalleVenta[] = [];
 }

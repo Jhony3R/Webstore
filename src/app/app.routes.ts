@@ -25,6 +25,10 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', loadComponent: () => import('./pages/gestion-home/gestion-home.component').then(m => m.GestionHomeComponent) },
       { path: 'productos', loadChildren: () => import('./pages/productos/productos.routes').then(m => m.PRODUCTOS_ROUTES) },
+      { path: 'caja', loadChildren: () => import('./pages/caja/caja.routes').then(m => m.CAJA_ROUTES) },
+      { path: 'clientes', loadChildren: () => import('./pages/clientes/clientes.routes').then(m => m.CLIENTES_ROUTES) },
+      { path: 'proveedores', loadChildren: () => import('./pages/proveedores/proveedores.routes').then(m => m.PROVEEDORES_ROUTES) },
+      { path: 'ventas', loadChildren: () => import('./pages/ventas/ventas.routes').then(m => m.VENTAS_ROUTES) },
     ],
   },
   // {

@@ -10,8 +10,8 @@ import { TokenService } from './token.service';
   providedIn: 'root'
 })
 export class ProveedorService extends GenericService<Proveedor>{
-  private proveedorChange: Subject<Proveedor[]> = new Subject<Proveedor[]>;
-  private messageChange: Subject<string> = new Subject<string>;
+  private proveedorChange: Subject<Proveedor[]> = new Subject<Proveedor[]>();
+  private messageChange: Subject<string> = new Subject<string>();
 
   constructor(
     protected override http: HttpClient,

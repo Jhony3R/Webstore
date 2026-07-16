@@ -10,7 +10,9 @@ export type EstadoVenta = 'COMPLETADA' | 'ANULADA';
 
 export type TipoAjusteInventario = 'MERMA' | 'PERDIDA' | 'DEVOLUCION' | 'CORRECCION' | 'INGRESO_COMPRA';
 
-export type EstadoCaja = 'ABIERTA' | 'CERRADA';
+export const EstadoCaja = { ABIERTA: 'ABIERTA', CERRADA: 'CERRADA' } as const;
+
+export type EstadoCaja = typeof EstadoCaja[keyof typeof EstadoCaja];
 
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO';
 
